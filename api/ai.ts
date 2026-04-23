@@ -8,19 +8,55 @@ import {
   generateSlidesServer, 
   generateTTSServer, 
   analyzeCorrectionServer 
-} from "../src/services/gemini.server.ts";
+} from "./gemini.server";
 
 export const config = {
   runtime: 'nodejs',
-  maxDuration: 60, // Maximum allowed for AI tasks on Vercel
+  maxDuration: 60,
 };
 
+async function parseJsonBody(req: any) {
+  if (req.body && Object.keys(req.body).length > 0) {
+    return req.body;
+  }
+
+  return new Promise((resolve, reject) => {
+    let body = "";
+
+    req.on("data", (chunk: Buffer | string) => {
+      body += chunk;
+    });
+
+    req.on("end", () => {
+      if (!body) return resolve({});
+      try {
+        resolve(JSON.parse(body));
+      } catch (err) {
+        reject(err);
+      }
+    });
+
+    req.on("error", reject);
+  });
+}
+
 export default async function handler(req: any, res: any) {
-  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+  if (req.method !== "POST") {
+    res.setHeader("Allow", "POST");
+    return res.status(405).json({ error: "Method not allowed" });
+  }
 
-  const { action, ...payload } = req.body;
+  let body: any;
+  try {
+    body = await parseJsonBody(req);
+  } catch (err) {
+    return res.status(400).json({ error: "Invalid JSON body" });
+  }
 
-  if (!action) return res.status(400).json({ error: "Missing action parameter" });
+  const { action, ...payload } = body || {};
+  if (!action || typeof action !== "string") {
+    return res.status(400).json({ error: "Missing or invalid action parameter" });
+  }
 
   try {
     switch (action) {

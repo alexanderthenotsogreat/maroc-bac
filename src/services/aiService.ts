@@ -52,11 +52,11 @@ async function secureFetch(url: string, options: RequestInit = {}) {
 }
 
 export async function chatWithSourcesStream(sources: Source[], query: string, subject: Subject, settings?: UserSettings) {
-  const url = getApiUrl("/api/ai/chat-stream");
+  const url = getApiUrl("/api/ai");
   const response = await secureFetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ sources, query, subject, settings })
+    body: JSON.stringify({ action: "chat", sources, query, subject, settings })
   });
   
   const reader = response.body?.getReader();
@@ -75,43 +75,43 @@ export async function chatWithSourcesStream(sources: Source[], query: string, su
 }
 
 export async function chatWithSources(sources: Source[], query: string, subject: Subject, settings?: UserSettings) {
-  const url = getApiUrl("/api/ai/chat-stream");
+  const url = getApiUrl("/api/ai");
   const response = await secureFetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ sources, query, subject, settings })
+    body: JSON.stringify({ action: "chat", sources, query, subject, settings })
   });
   
   return response.text();
 }
 
 export async function generateTTS(text: string, voice: TTSVoice = 'Kore', language: Language = 'French') {
-  const url = getApiUrl("/api/ai/tts");
+  const url = getApiUrl("/api/ai");
   const response = await secureFetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text, voice, language })
+    body: JSON.stringify({ action: "tts", text, voice, language })
   });
   const { data } = await response.json();
   return data;
 }
 
 export async function generateFlashcards(sources: Source[], subject: Subject, settings?: UserSettings, topic?: string, depth: "standard" | "deep" = "standard") {
-  const url = getApiUrl("/api/ai/flashcards");
+  const url = getApiUrl("/api/ai");
   const response = await secureFetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ sources, subject, settings, topic, depth })
+    body: JSON.stringify({ action: "flashcards", sources, subject, settings, topic, depth })
   });
   return response.json();
 }
 
 export async function generateQuiz(sources: Source[], subject: Subject, settings?: UserSettings, difficulty: string = "Standard", topic?: string, depth: "standard" | "deep" = "standard") {
-  const url = getApiUrl("/api/ai/quiz");
+  const url = getApiUrl("/api/ai");
   const response = await secureFetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ sources, subject, settings, difficulty, topic, depth })
+    body: JSON.stringify({ action: "quiz", sources, subject, settings, difficulty, topic, depth })
   });
   return response.json();
 }
@@ -122,51 +122,51 @@ export async function generateLearningPath(
   settings: UserSettings, 
   sourceContext: string
 ): Promise<LearningPath> {
-  const url = getApiUrl("/api/ai/learning-path");
+  const url = getApiUrl("/api/ai");
   const response = await secureFetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ subject, progress, settings, sourceContext })
+    body: JSON.stringify({ action: "learning-path", subject, progress, settings, sourceContext })
   });
   return response.json();
 }
 
 export async function generateStudyGuide(sources: Source[], subject: Subject, settings?: UserSettings, topic?: string, format?: string): Promise<Partial<StudyGuide>> {
-  const url = getApiUrl("/api/ai/study-guide");
+  const url = getApiUrl("/api/ai");
   const response = await secureFetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ sources, subject, settings, topic, format })
+    body: JSON.stringify({ action: "study-guide", sources, subject, settings, topic, format })
   });
   return response.json();
 }
 
 export async function generateMindMap(sources: Source[], subject: Subject, settings?: UserSettings, topic?: string, format?: string): Promise<Partial<MindMap>> {
-  const url = getApiUrl("/api/ai/mindmap");
+  const url = getApiUrl("/api/ai");
   const response = await secureFetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ sources, subject, settings, topic, format })
+    body: JSON.stringify({ action: "mindmap", sources, subject, settings, topic, format })
   });
   return response.json();
 }
 
 export async function generateSlides(sources: Source[], subject: Subject, settings?: UserSettings, topic?: string, format?: string): Promise<Partial<SlideDeck>> {
-  const url = getApiUrl("/api/ai/slides");
+  const url = getApiUrl("/api/ai");
   const response = await secureFetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ sources, subject, settings, topic, format })
+    body: JSON.stringify({ action: "slides", sources, subject, settings, topic, format })
   });
   return response.json();
 }
 
 export async function analyzeCorrection(imageBuffers: string[], subject: Subject, settings: UserSettings, sources: Source[] = [], history: string[] = []) {
-  const url = getApiUrl("/api/ai/analyze-correction");
+  const url = getApiUrl("/api/ai");
   const response = await secureFetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ imageBuffers, subject, settings, sources, history })
+    body: JSON.stringify({ action: "correction", imageBuffers, subject, settings, sources, history })
   });
   const { text } = await response.json();
   return text;
