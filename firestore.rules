@@ -1,0 +1,127 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helper Functions ---
+    function isSignedIn() { return request.auth != null; }
+    function isOwner(userId) { return isSignedIn() && request.auth.uid == userId; }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+
+    // --- Validation Helpers ---
+    function isValidNotebook(data) {
+      return data.title is string && data.title.size() > 0 && data.title.size() <= 100 &&
+             data.userId == request.auth.uid &&
+             data.subject in ["Mathematics", "Physics", "SVT", "Philosophy", "English", "Arabic", "French", "Islamic Education", "History-Geography", "Economics", "Accounting", "Engineering Sciences", "Applied Arts", "Agronomy", "Islamic Sciences"];
+    }
+
+    function isValidSource(data) {
+      return data.title is string && data.title.size() > 0 && data.title.size() <= 200 &&
+             data.content is string && data.content.size() <= 500000 &&
+             data.userId == request.auth.uid &&
+             data.type in ["pdf", "text", "link", "image"] &&
+             data.notebookId is string;
+    }
+
+    function isValidCorrection(data) {
+      return data.userId == request.auth.uid &&
+             data.subject is string &&
+             data.analysis is string &&
+             data.score is number;
+    }
+
+    function isNotebookOwner(notebookId) {
+      return get(/databases/$(database)/documents/notebooks/$(notebookId)).data.userId == request.auth.uid;
+    }
+
+    // --- Collection: Notebooks ---
+    match /notebooks/{notebookId} {
+      allow create: if isSignedIn() && isValidNotebook(incoming()) && 
+                      isValidId(notebookId) && 
+                      incoming().createdAt == request.time;
+      
+      allow read: if isSignedIn() && (resource == null || resource.data.userId == request.auth.uid);
+      
+      allow update: if isSignedIn() && existing().userId == request.auth.uid &&
+                      isValidNotebook(incoming()) && 
+                      incoming().userId == existing().userId &&
+                      incoming().createdAt == existing().createdAt &&
+                      (
+                        // Action: Update Metadata
+                        incoming().diff(existing()).affectedKeys().hasOnly(['title', 'description', 'subject', 'updatedAt', 'sourcesCount', 'isOfficial'])
+                      );
+      
+      allow delete: if isSignedIn() && existing().userId == request.auth.uid;
+
+      // --- Sub-collections ---
+      // Pattern: Relational check using userId field for efficient listing
+      // and checking parent notebook for creation/security.
+      
+      match /sources/{sourceId} {
+        allow create: if isNotebookOwner(notebookId) && isValidSource(incoming()) && isValidId(sourceId) && incoming().createdAt == request.time;
+        allow read: if isNotebookOwner(notebookId);
+        allow update: if isNotebookOwner(notebookId) && 
+                        isValidSource(incoming()) &&
+                        incoming().diff(existing()).affectedKeys().hasOnly(['title', 'content']);
+        allow delete: if isNotebookOwner(notebookId);
+      }
+
+      match /flashcards/{setId} {
+        allow create: if isNotebookOwner(notebookId) && isValidId(setId) && incoming().createdAt == request.time;
+        allow read: if isNotebookOwner(notebookId);
+        allow delete: if isNotebookOwner(notebookId);
+      }
+
+      match /quizzes/{quizId} {
+        allow create: if isNotebookOwner(notebookId) && isValidId(quizId) && incoming().createdAt == request.time;
+        allow read: if isNotebookOwner(notebookId);
+        allow delete: if isNotebookOwner(notebookId);
+      }
+
+      match /study-guides/{id} {
+        allow create: if isNotebookOwner(notebookId) && isValidId(id) && incoming().createdAt == request.time;
+        allow read: if isNotebookOwner(notebookId);
+        allow delete: if isNotebookOwner(notebookId);
+      }
+
+      match /mind-maps/{id} {
+        allow create: if isNotebookOwner(notebookId) && isValidId(id) && incoming().createdAt == request.time;
+        allow read: if isNotebookOwner(notebookId);
+        allow delete: if isNotebookOwner(notebookId);
+      }
+
+      match /slides/{id} {
+        allow create: if isNotebookOwner(notebookId) && isValidId(id) && incoming().createdAt == request.time;
+        allow read: if isNotebookOwner(notebookId);
+        allow delete: if isNotebookOwner(notebookId);
+      }
+    }
+
+    // --- Collection: Corrections ---
+    match /corrections/{correctionId} {
+      allow create: if isSignedIn() && isValidCorrection(incoming()) && isValidId(correctionId) && incoming().createdAt == request.time;
+      allow read: if isSignedIn() && (resource == null || resource.data.userId == request.auth.uid);
+      allow delete: if isSignedIn() && existing().userId == request.auth.uid;
+    }
+
+    // --- Collection: Users ---
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+
+      match /progress/{subjectId} {
+        // progress documents might not have a userId field, so we use the path variable
+        allow read, write: if isOwner(userId);
+      }
+    }
+
+    // --- Collection: Settings (Top Level as used in App.tsx) ---
+    match /settings/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+  }
+}

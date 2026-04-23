@@ -1,0 +1,6 @@
+{
+  "name": "MarocBac Notebook",
+  "description": "A Moroccan-specialized NotebookLM clone for Baccalaureate students, featuring AI-powered study tools, exam simulations, and offline access.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["AI study tools", "Source-based chat", "Flashcards", "Quizzes"]
+}

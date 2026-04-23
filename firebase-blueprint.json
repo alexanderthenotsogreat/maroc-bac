@@ -1,0 +1,214 @@
+{
+  "entities": {
+    "Notebook": {
+      "title": "Notebook",
+      "description": "A collection of sources for a specific study topic.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "userId": { "type": "string" },
+        "subject": { "type": "string", "enum": ["Mathematics", "Physics", "SVT", "Philosophy", "English", "Arabic", "French", "Islamic Education", "History-Geography", "Economics", "Accounting", "Engineering Sciences", "Applied Arts", "Agronomy", "Islamic Sciences"] },
+        "sourcesCount": { "type": "integer" },
+        "isOfficial": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "userId", "subject", "createdAt", "updatedAt"]
+    },
+    "Source": {
+      "title": "Source",
+      "description": "A document or text input that provides information for a notebook.",
+      "type": "object",
+      "properties": {
+        "notebookId": { "type": "string" },
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "type": { "type": "string", "enum": ["pdf", "text", "link"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["notebookId", "userId", "title", "content", "type", "createdAt"]
+    },
+    "FlashcardSet": {
+      "title": "FlashcardSet",
+      "description": "A set of AI-generated flashcards based on notebook sources.",
+      "type": "object",
+      "properties": {
+        "notebookId": { "type": "string" },
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "cards": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "front": { "type": "string" },
+              "back": { "type": "string" }
+            }
+          }
+        },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["notebookId", "userId", "title", "cards", "createdAt"]
+    },
+    "Quiz": {
+      "title": "Quiz",
+      "description": "An AI-generated quiz based on notebook sources.",
+      "type": "object",
+      "properties": {
+        "notebookId": { "type": "string" },
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "questions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "question": { "type": "string" },
+              "options": { "type": "array", "items": { "type": "string" } },
+              "correctIndex": { "type": "integer" },
+              "explanation": { "type": "string" }
+            }
+          }
+        },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["notebookId", "userId", "title", "questions", "createdAt"]
+    },
+    "UserProgress": {
+      "title": "UserProgress",
+      "description": "Tracking student mastery in specific subjects.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "subject": { "type": "string" },
+        "masteryLevel": { "type": "integer" },
+        "lastExamSimScore": { "type": "integer" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "subject", "masteryLevel", "updatedAt"]
+    },
+    "UserSettings": {
+      "title": "UserSettings",
+      "description": "User preferences for language, learning style, and theme.",
+      "type": "object",
+      "properties": {
+        "language": { "type": "string", "enum": ["French", "Arabic", "English", "Darija"] },
+        "learningStyle": { "type": "string", "enum": ["Visual", "Auditory", "Read/Write", "Kinesthetic"] },
+        "learningSpeed": { "type": "string", "enum": ["Slow", "Moderate", "Fast"] },
+        "themeColor": { "type": "string", "enum": ["emerald", "blue", "indigo", "rose", "amber", "violet", "orange", "slate"] },
+        "branch": { "type": "string", "enum": [
+          "Sciences Mathématiques A",
+          "Sciences Mathématiques B",
+          "Sciences Physiques et Chimiques (PC)",
+          "Sciences de la Vie et de la Terre (SVT)",
+          "Sciences Économiques",
+          "Gestion Comptable",
+          "Lettres",
+          "Sciences Humaines",
+          "Sciences et Technologies Électriques (STE)",
+          "Sciences et Technologies Mécaniques (STM)",
+          "Sciences Agronomiques",
+          "Arts Appliqués",
+          "Sciences de la Charia",
+          "Langue Arabe"
+        ]}
+      },
+      "required": ["language", "learningStyle", "learningSpeed", "themeColor"]
+    },
+    "StudyGuide": {
+      "title": "StudyGuide",
+      "type": "object",
+      "properties": {
+        "notebookId": { "type": "string" },
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "summary": { "type": "string" },
+        "keyPoints": { "type": "array", "items": { "type": "string" } },
+        "examTips": { "type": "array", "items": { "type": "string" } },
+        "glossary": { "type": "array", "items": { "type": "object" } },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "MindMap": {
+      "title": "MindMap",
+      "type": "object",
+      "properties": {
+        "notebookId": { "type": "string" },
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "root": { "type": "object" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "SlideDeck": {
+      "title": "SlideDeck",
+      "type": "object",
+      "properties": {
+        "notebookId": { "type": "string" },
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "slides": { "type": "array", "items": { "type": "object" } },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "CorrectionResult": {
+      "title": "CorrectionResult",
+      "description": "Output of the AI Bac Corrector multimodal analysis.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "subject": { "type": "string" },
+        "images": { "type": "array", "items": { "type": "string" } },
+        "analysis": { "type": "string" },
+        "score": { "type": "number" },
+        "weakPoints": { "type": "array", "items": { "type": "string" } },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "subject", "images", "analysis", "score", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/notebooks/{notebookId}": {
+      "schema": "Notebook",
+      "description": "Top-level collection of user notebooks."
+    },
+    "/corrections/{correctionId}": {
+      "schema": "CorrectionResult",
+      "description": "AI-generated exam corrections."
+    },
+    "/notebooks/{notebookId}/sources/{sourceId}": {
+      "schema": "Source",
+      "description": "Sources belonging to a specific notebook."
+    },
+    "/notebooks/{notebookId}/flashcards/{setId}": {
+      "schema": "FlashcardSet",
+      "description": "Flashcard sets generated for a notebook."
+    },
+    "/notebooks/{notebookId}/quizzes/{quizId}": {
+      "schema": "Quiz",
+      "description": "Quizzes generated for a notebook."
+    },
+    "/users/{userId}/progress/{subjectId}": {
+      "schema": "UserProgress",
+      "description": "User progress per subject."
+    },
+    "/users/{userId}/settings/{documentId}": {
+      "schema": "UserSettings",
+      "description": "User settings document (usually 'global')."
+    },
+    "/notebooks/{notebookId}/study-guides/{id}": {
+      "schema": "StudyGuide",
+      "description": "AI-generated study guides for a notebook."
+    },
+    "/notebooks/{notebookId}/mind-maps/{id}": {
+      "schema": "MindMap",
+      "description": "AI-generated mind maps for a notebook."
+    },
+    "/notebooks/{notebookId}/slides/{id}": {
+      "schema": "SlideDeck",
+      "description": "AI-generated slide decks for a notebook."
+    }
+  }
+}
