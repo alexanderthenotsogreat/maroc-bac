@@ -1,5 +1,5 @@
 import { Source, Subject, UserSettings, UserProgress, LearningPath, StudyGuide, MindMap, SlideDeck, TTSVoice, Language } from "../types/index.ts";
-import { t } from "../constants/ui";
+import { t } from "../constants/ui.ts";
 
 /**
  * Helper to ensure we use absolute URLs when needed, or relative paths that are consistent.

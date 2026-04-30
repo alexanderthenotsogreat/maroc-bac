@@ -8,7 +8,7 @@ import {
   generateSlidesServer, 
   generateTTSServer, 
   analyzeCorrectionServer 
-} from "./gemini.server";
+} from "./gemini.server.js";
 
 export const config = {
   runtime: 'nodejs',

@@ -1,5 +1,4 @@
 import { GoogleGenAI, Type, Modality } from "@google/genai";
-import { Source, Subject, UserSettings, UserProgress, LearningPath, TTSVoice, Language } from "../src/types/index";
 
 // Server-side initialization
 const getAI = () => {
@@ -28,7 +27,7 @@ Excellence Guidelines:
 3. TERMINOLOGY GUARD: Use official terms like "Asymptote", "Électronégativité", "Mouvement de translation", "Sira Nabawiya".
 4. FORMAT CONSISTENCY: Every response must be logically structured, high-density, and exam-ready.`;
 
-function getSystemPrompt(settings?: UserSettings) {
+function getSystemPrompt(settings) {
   if (!settings) return MOROCCAN_SYSTEM_PROMPT;
   return MOROCCAN_SYSTEM_PROMPT
     .replace("{branch}", settings.branch || "Général")
@@ -36,7 +35,7 @@ function getSystemPrompt(settings?: UserSettings) {
     .replace("{style}", settings.learningStyle || "Standard");
 }
 
-export async function chatWithSourcesStreamServer(sources: Source[], query: string, subject: Subject, settings?: UserSettings) {
+export async function chatWithSourcesStreamServer(sources, query, subject, settings) {
   const ai = getAI();
   const context = sources.map(s => `SOURCE [${s.title}]:\n${s.content}`).join("\n\n---\n\n");
   const langPref = settings?.language || "French";
@@ -63,7 +62,7 @@ User Question: ${query}` }]
   });
 }
 
-export async function chatWithSourcesServer(sources: Source[], query: string, subject: Subject, settings?: UserSettings) {
+export async function chatWithSourcesServer(sources, query, subject, settings) {
   const ai = getAI();
   const context = sources.map(s => `SOURCE [${s.title}]:\n${s.content}`).join("\n\n---\n\n");
   const langPref = settings?.language || "French";
@@ -92,7 +91,7 @@ User Question: ${query}` }]
   return response.text;
 }
 
-export async function generateTTSServer(text: string, voice: TTSVoice = 'Kore', language: Language = 'French') {
+export async function generateTTSServer(text, voice = 'Kore', language = 'French') {
   const ai = getAI();
   const model = "gemini-3.1-flash-tts-preview";
   
@@ -115,7 +114,7 @@ export async function generateTTSServer(text: string, voice: TTSVoice = 'Kore', 
   return base64Audio;
 }
 
-function cleanJSON(text: string): string {
+function cleanJSON(text) {
   if (!text) return "{}";
   let cleaned = text.replace(/```json\n?|```/g, "").trim();
   const start = Math.min(
@@ -144,7 +143,7 @@ function cleanJSON(text: string): string {
   return cleaned;
 }
 
-export async function generateFlashcardsServer(sources: Source[], subject: Subject, settings?: UserSettings, topic?: string, depth: "standard" | "deep" = "standard") {
+export async function generateFlashcardsServer(sources, subject, settings, topic, depth = "standard") {
   const ai = getAI();
   const context = sources.map(s => s.content).join("\n\n");
   
@@ -185,7 +184,7 @@ Notes: ${context}` }]
   }
 }
 
-export async function generateQuizServer(sources: Source[], subject: Subject, settings?: UserSettings, difficulty: string = "Standard", topic?: string, depth: "standard" | "deep" = "standard") {
+export async function generateQuizServer(sources, subject, settings, difficulty = "Standard", topic, depth = "standard") {
   const ai = getAI();
   const context = sources.map(s => s.content).join("\n\n");
   
@@ -229,12 +228,7 @@ Notes: ${context}` }]
   }
 }
 
-export async function generateLearningPathServer(
-  subject: Subject, 
-  progress: UserProgress, 
-  settings: UserSettings, 
-  sourceContext: string
-): Promise<LearningPath> {
+export async function generateLearningPathServer(subject, progress, settings, sourceContext) {
   const ai = getAI();
   const response = await ai.models.generateContent({
     model: "gemini-3-flash-preview",
@@ -260,7 +254,7 @@ Context: ${sourceContext.substring(0, 3000)}` }]
   }
 }
 
-export async function generateStudyGuideServer(sources: Source[], subject: Subject, settings?: UserSettings, topic?: string, format?: string) {
+export async function generateStudyGuideServer(sources, subject, settings, topic, format) {
   const ai = getAI();
   const context = sources.map(s => s.content).join("\n\n");
   const response = await ai.models.generateContent({
@@ -278,7 +272,7 @@ export async function generateStudyGuideServer(sources: Source[], subject: Subje
   }
 }
 
-export async function generateMindMapServer(sources: Source[], subject: Subject, settings?: UserSettings, topic?: string, format?: string) {
+export async function generateMindMapServer(sources, subject, settings, topic, format) {
   const ai = getAI();
   const context = sources.map(s => s.content).join("\n\n");
   const response = await ai.models.generateContent({
@@ -296,7 +290,7 @@ export async function generateMindMapServer(sources: Source[], subject: Subject,
   }
 }
 
-export async function generateSlidesServer(sources: Source[], subject: Subject, settings?: UserSettings, topic?: string, format?: string) {
+export async function generateSlidesServer(sources, subject, settings, topic, format) {
   const ai = getAI();
   const context = sources.map(s => s.content).join("\n\n");
   const response = await ai.models.generateContent({
@@ -314,7 +308,7 @@ export async function generateSlidesServer(sources: Source[], subject: Subject, 
   }
 }
 
-export async function analyzeCorrectionServer(imageBuffers: string[], subject: Subject, settings: UserSettings, sources: Source[] = [], history: string[] = []) {
+export async function analyzeCorrectionServer(imageBuffers, subject, settings, sources = [], history = []) {
   const ai = getAI();
   const model = "gemini-3-flash-preview";
   
